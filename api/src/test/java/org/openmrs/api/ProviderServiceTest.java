@@ -225,7 +225,62 @@ public class ProviderServiceTest extends BaseContextSensitiveTest {
 		service.purgeProvider(provider);
 		assertEquals(8, Context.getProviderService().getAllProviders().size());
 	}
-	
+
+	/**
+	 * @see ProviderService#purgeProvider(Provider)
+	 * Test 3: retire -> purge -> purge
+	 * Expected: Retired, null (purged), Exception
+	 */
+	@Test
+	public void purgeProvider_shouldRemoveProviderWhenRetiredProviderIsPurged() {
+		Provider provider = service.getProvider(2);
+		assertFalse(provider.getRetired());
+		assertNull(provider.getRetireReason());
+
+		service.retireProvider(provider, "retire reason");
+		assertTrue(provider.getRetired());
+
+		service.purgeProvider(provider);
+		assertEquals(8, Context.getProviderService().getAllProviders().size());
+		
+		try {
+			service.purgeProvider(provider);
+		} catch (Exception e) {
+			assertTrue(e instanceof IllegalArgumentException);
+		}
+	}
+
+
+
+	/**
+	 * @see ProviderService#purgeProvider(Provider)
+	 * Test 4: purge -> retire -> unretire
+	 * Expected: null (purged), Exception, Exception
+	 */
+	@Test
+	public void purgeProvider_shouldThrowExceptionWhenRetireOrUnretireAPurgedProvider() {
+		Provider provider = service.getProvider(2);
+		assertFalse(provider.getRetired());
+		assertNull(provider.getRetireReason());
+
+		service.purgeProvider(provider);
+		assertEquals(8, Context.getProviderService().getAllProviders().size());
+
+		try {
+			service.retireProvider(provider, "retire reason");
+		} catch (Exception e) {
+			assertTrue(e instanceof IllegalArgumentException);
+		}
+
+		try {
+			service.unretireProvider(provider);
+		} catch (Exception e) {
+			assertTrue(e instanceof IllegalArgumentException);
+		}
+	}
+
+
+
 	/**
 	 * @see ProviderService#purgeProviderAttributeType(ProviderAttributeType)
 	 */
@@ -249,6 +304,26 @@ public class ProviderServiceTest extends BaseContextSensitiveTest {
 		assertTrue(provider.getRetired());
 		assertEquals("retire reason", provider.getRetireReason());
 		assertEquals(6, service.getAllProviders(false).size());
+	}
+
+	/**
+	 * @see ProviderService#retireProvider(Provider,String)
+	 * Test 1: retire -> retire
+	 * Expected: Retired, Retired
+	 */
+	@Test
+	public void retireProvider_shouldRemainRetiredIfProviderIsRetired() {
+		Provider provider = service.getProvider(1);
+		assertFalse(provider.getRetired());
+		assertNull(provider.getRetireReason());
+		
+		service.retireProvider(provider, "retire reason");
+		assertTrue(provider.getRetired());
+		assertEquals("retire reason", provider.getRetireReason());
+		
+		service.retireProvider(provider, "retire reason");
+		assertTrue(provider.getRetired());
+		assertEquals("retire reason", provider.getRetireReason());
 	}
 	
 	/**
@@ -334,7 +409,28 @@ public class ProviderServiceTest extends BaseContextSensitiveTest {
 		assertFalse(provider.getRetired());
 		assertNull(provider.getRetireReason());
 	}
-	
+
+	/**
+	 * @see ProviderService#unretireProvider(Provider)
+	 * Test 2: retire -> unretire -> unretire
+	 * Expected: Retired, Unretired, Unretired
+	 */
+	@Test
+	public void unretireProvider_shouldRemainUnretiredIfProviderIsUnretired() {
+		Provider provider = service.getProvider(2);
+		assertFalse(provider.getRetired());
+		assertNull(provider.getRetireReason());
+
+		service.retireProvider(provider, "retire reason");
+		assertTrue(provider.getRetired());
+		
+		service.unretireProvider(provider);
+		assertFalse(provider.getRetired());
+
+		service.unretireProvider(provider);
+		assertFalse(provider.getRetired());
+	}
+
 	/**
 	 * @see ProviderService#unretireProviderAttributeType(ProviderAttributeType)
 	 */
