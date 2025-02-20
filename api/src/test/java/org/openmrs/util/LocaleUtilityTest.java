@@ -9,23 +9,23 @@
  */
 package org.openmrs.util;
 
+import java.util.Iterator;
+import java.util.Locale;
 import static java.util.Locale.ENGLISH;
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.openmrs.util.LocaleUtility.fromSpecification;
-import static org.openmrs.util.OpenmrsConstants.GLOBAL_PROPERTY_DEFAULT_LOCALE_DEFAULT_VALUE;
-
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Set;
-
 import org.junit.jupiter.api.Test;
 import org.openmrs.GlobalProperty;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.jupiter.BaseContextSensitiveTest;
+import static org.openmrs.util.LocaleUtility.fromSpecification;
+import static org.openmrs.util.OpenmrsConstants.GLOBAL_PROPERTY_DEFAULT_LOCALE_DEFAULT_VALUE;
+
 
 /**
  * Behavior-driven unit tests for {@link LocaleUtility} class
@@ -342,4 +342,64 @@ public class LocaleUtilityTest extends BaseContextSensitiveTest {
 		gp.setPropertyValue("");
 		Context.getAdministrationService().saveGlobalProperty(gp);
 	}
+
+    /**
+     * @see LocaleUtility#isValid(Locale)
+     */
+    @Test
+    public void isValid_shouldReturnTrueForValidLocale() {
+        Locale validLocale = Locale.US;
+        assertTrue(LocaleUtility.isValid(validLocale));
+    }
+
+    @Test
+    public void isValid_shouldReturnFalseForInvalidLocale() {
+        Locale invalidLocale = new Locale("invalid", "locale");
+        assertFalse(LocaleUtility.isValid(invalidLocale));
+    }
+
+    @Test
+    public void isValid_shouldHandleMissingResourceException() {
+        Locale invalidLocale = new Locale("invalid", "");
+        assertFalse(LocaleUtility.isValid(invalidLocale));
+    }
+
+    @Test
+    public void isValid_shouldReturnTrueForDefaultLocale() {
+        Locale defaultLocale = LocaleUtility.getDefaultLocale();
+        assertTrue(LocaleUtility.isValid(defaultLocale), "Default locale should be valid.");
+    }
+
+    @Test
+    public void isValid_shouldReturnFalseForMalformedLocale() {
+        Locale malformedLocale = new Locale("xx", "YY", "invalid_variant");
+        assertFalse(LocaleUtility.isValid(malformedLocale), "Malformed locale should not be valid.");
+    }
+
+    @Test
+    public void isValid_shouldReturnTrueForLocaleWithEmptyStrings() {
+        Locale emptyLocale = new Locale("", "");
+        assertTrue(LocaleUtility.isValid(emptyLocale), "Expected LocaleUtility.isValid() to return true for empty strings");
+    }
+
+    @Test
+    public void isValid_shouldReturnTrueForLocaleWithOnlyLanguageCode() {
+        Locale languageOnlyLocale = new Locale("en");
+        assertTrue(LocaleUtility.isValid(languageOnlyLocale));
+    }
+
+    @Test
+    public void isValid_shouldReturnFalseForLocaleWithUnsupportedISOCodes() {
+        Locale unsupportedLocale = new Locale("xx", "YY");
+        assertFalse(LocaleUtility.isValid(unsupportedLocale));
+    }
+
+    @Test
+    public void getLocalesInOrder_shouldIncludeUserPreferredLocaleIfSet() {
+        Locale preferredLocale = new Locale("fr", "CA");
+        Context.setLocale(preferredLocale);
+        Set<Locale> locales = LocaleUtility.getLocalesInOrder();
+        assertTrue(locales.contains(preferredLocale));
+        assertEquals(preferredLocale, locales.iterator().next());
+    }
 }
