@@ -1,5 +1,5 @@
 
-## Introduction
+## Introduction 
 
 OpenMRS is an open-source electronic medical record (EMR) system designed to improve healthcare delivery in resource-constrained environments. The system provides healthcare providers a robust, scalable, and user-driven platform for efficiently managing patient data. It supports customization to fit various healthcare needs and integrates multiple healthcare workflows. OpenMRS is developed primarily in Java and follows a modular architecture that allows easy extensions and integrations. Using cloc to analyze the codebase, the system comprises approximately 497,418 lines of code, with 139,671 lines written in Java.
 
