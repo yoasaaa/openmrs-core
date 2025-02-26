@@ -1,0 +1,38 @@
+name: Yichen Branch CI
+
+on:
+    push:
+        branches:
+            - Yichen
+    pull_request:
+        branches:
+            - Yichen
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest   
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up Amazon Corretto JDK 17
+              uses: actions/setup-java@v4
+              with:
+                  distribution: 'corretto'
+                  java-version: '17'
+                  cache: 'maven'
+
+            - name: Build with Maven (skip tests initially)
+              run: mvn -B clean package -DskipTests
+
+            - name: Run tests
+              run: mvn -B test
+
+            - name: Archive test results
+              if: ${{ always() }}
+              uses: actions/upload-artifact@v4
+              with:
+                  name: yichen-test-results
+                  path: '**/target/surefire-reports/'
+                  retention-days: 5
