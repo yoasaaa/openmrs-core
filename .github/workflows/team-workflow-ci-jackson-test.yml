@@ -1,12 +1,12 @@
 name: Team Wide CI
 
 on:
-    push:
-        branches:
-            - 'Jackson'
-    pull_request:
-        branches:
-            - 'Jackson'
+    #push:
+        #branches:
+            #- 'Jackson'
+    #pull_request:
+        #branches:
+            #- 'Jackson'
     workflow_dispatch:
 
 jobs:
