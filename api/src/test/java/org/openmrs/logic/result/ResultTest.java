@@ -9,6 +9,8 @@
  */
 package org.openmrs.logic.result;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -20,7 +22,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.openmrs.Concept;
+import org.openmrs.ConceptDatatype;
 import org.openmrs.Encounter;
+import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.LogicException;
 
@@ -51,6 +56,72 @@ public class ResultTest {
 	@Test
 	public void Result_shouldNotFailWithNullResult() {
 		new Result((Result) null);
+	}
+	
+	/*
+	 * @see Result#Result(Obs)
+	 */
+	@Test
+	public void Result_shouldSetDatatypeBasedOnObs() {
+		Obs obs = new Obs();
+		Concept concept = new Concept();
+		ConceptDatatype conceptDatatype = new ConceptDatatype();
+
+		conceptDatatype.setUuid(ConceptDatatype.BOOLEAN_UUID); // boolean
+		concept.setDatatype(conceptDatatype);
+		obs.setConcept(concept);
+
+		Result result = new Result(obs);
+		assertEquals(Result.Datatype.BOOLEAN, result.getDatatype());
+	}
+
+	/*
+	 * @see Result#Result(Integer)
+	 */
+	@Test
+	public void Result_shouldSetIntegerValueAndDefaultDate() {
+		Integer valueNumeric = 123;
+		Result result = new Result(valueNumeric);
+
+		assertEquals(valueNumeric.doubleValue(), result.toNumber());
+		assertNull(result.toDatetime());
+	}
+
+	/*
+	 * @see Result#Result(Boolean)
+	 */
+	@Test
+	public void Result_shouldSetBooleanValueAndDefaultDate() {
+		Boolean valueBoolean = true;
+		Result result = new Result(valueBoolean);
+		
+		assertEquals(valueBoolean, result.toBoolean());
+		assertNull(result.toDatetime());
+	}
+	
+
+	/*
+	 * @see Result#Result(Date, Datatype, Boolean, Concept, Date, Double, String, Object)
+	 */
+	@Test
+	public void Result_shouldSetAllValues() {
+		Date resultDate = new Date();
+		Boolean valueBoolean = true;
+		Concept valueCoded = new Concept();
+		Date valueDatetime = new Date();
+		Double valueNumeric = 123.45;
+		String valueText = "test";
+		Object object = new Object();
+
+		Result result = new Result(resultDate, Result.Datatype.NUMERIC, valueBoolean, valueCoded, valueDatetime, valueNumeric, valueText, object);
+
+		assertEquals(resultDate, result.getResultDate());
+		assertEquals(valueBoolean, result.toBoolean());
+		assertEquals(valueCoded, result.toConcept());
+		assertEquals(valueDatetime, result.toDatetime());
+		assertEquals(valueNumeric, result.toNumber());
+		assertEquals(String.valueOf(valueNumeric), result.toString());
+		assertEquals(object, result.toObject());
 	}
 	
 	@Test
@@ -110,6 +181,22 @@ public class ResultTest {
 	@Test
 	public void equals_shouldReturnTrueOnTwoEmptyResults() {
 		assertTrue(new EmptyResult().equals(new Result()));
+	}
+
+	@Test
+	public void equals_shouldReturnTrueOnEqualResults() {
+		Result result1 = new Result(new Date(), "some value", new Encounter(123));
+		Result result2 = new Result(new Date(), "some value", new Encounter(123));
+
+		assertTrue(result1.equals(result2));
+	}
+
+	@Test
+	public void equals_shouldReturnFalseOnDifferentResults() {
+		Result result1 = new Result(new Date(), "value1", new Encounter(123));
+		Result result2 = new Result(new Date(), "value2", new Encounter(456));
+
+		assertFalse(result1.equals(result2));
 	}
 	
 	@Test

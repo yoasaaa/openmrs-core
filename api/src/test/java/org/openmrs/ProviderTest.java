@@ -32,6 +32,26 @@ public class ProviderTest {
 	}
 	
 	/**
+	 * @see Provider#getName()
+	 */
+	@Test
+	public void getName_shouldReturnNullIfPersonNameIsNull() {
+		Provider provider = new Provider();
+		Person person = new Person(1);
+		provider.setPerson(person);
+		assertEquals(null, provider.getName());
+	}
+	
+	/**
+	 * @see Provider#getName()
+	 */
+	@Test
+	public void getName_shouldReturnNullIfPersonIsNull() {
+		Provider provider = new Provider();
+		assertEquals(null, provider.getName());
+	}
+	
+	/**
 	 * @see Provider#toString()
 	 */
 	@Test
@@ -46,4 +66,41 @@ public class ProviderTest {
 		assertEquals(provider.toString(), "[Provider: providerId:1 providerName:[givenName middleName familyName] ]");
 	}
 	
+	/**
+	 * @see Provider#toString()
+	 */
+	@Test
+	public void toString_shouldReturnSpecificFormatIfPersonIsNull() {
+		Provider provider = new Provider();
+		provider.setProviderId(1);
+		provider.setPerson(null);
+		assertEquals(provider.toString(), "[Provider: providerId:1 providerName: ]");
+	}
+	
+	/**
+	 * @see Provider#toString()
+	 */
+	@Test
+	public void toString_shouldReturnSpecificFormatIfPersonHasSingleName() {
+		Provider provider = new Provider();
+		provider.setProviderId(1);
+
+		Person person = new Person(1);
+		person.addName(new PersonName("givenName", null, null));
+		provider.setPerson(person);
+		assertEquals(provider.toString(), "[Provider: providerId:1 providerName:[givenName] ]");
+	}
+	
+	/**
+	 * @see Provider#toString()
+	 */
+	@Test
+	public void toString_shouldReturnSpecificFormatIfPersonNamesIsEmpty() {
+		Provider provider = new Provider();
+		provider.setProviderId(1);
+		Person person = new Person(1);
+		person.addName(new PersonName());
+		provider.setPerson(person);
+		assertEquals(provider.toString(), "[Provider: providerId:1 providerName:[] ]");
+	}
 }
