@@ -326,6 +326,7 @@ public class ProviderServiceTest extends BaseContextSensitiveTest {
 		assertEquals("retire reason", provider.getRetireReason());
 	}
 	
+
 	/**
 	 * @see ProviderService#retireProviderAttributeType(ProviderAttributeType,String)
 	 */
@@ -430,6 +431,7 @@ public class ProviderServiceTest extends BaseContextSensitiveTest {
 		service.unretireProvider(provider);
 		assertFalse(provider.getRetired());
 	}
+
 
 	/**
 	 * @see ProviderService#unretireProviderAttributeType(ProviderAttributeType)
