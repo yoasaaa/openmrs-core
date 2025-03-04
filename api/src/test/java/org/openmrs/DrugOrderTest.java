@@ -22,6 +22,8 @@ import java.util.Date;
 import org.junit.jupiter.api.Test;
 import org.openmrs.order.OrderUtilTest;
 
+import static org.mockito.Mockito.*;
+
 /**
  * Contains tests for DrugOrder
  */
@@ -385,5 +387,45 @@ public class DrugOrderTest {
 		otherOrder.setConcept(concept);
 
 		assertTrue(order.hasSameOrderableAs(otherOrder));
+	}
+
+	/**
+	 * @see DrugOrder#setAutoExpireDateBasedOnDuration()
+	 * Using Mockito to mock the DosingInstructions behavior
+	 */
+	@Test
+	public void setAutoExpireDateBasedOnDuration_shouldHandleExceptionFromDosingInstructions() {
+		// Create a spy of DrugOrder to partially mock the object
+		DrugOrder drugOrder = spy(new DrugOrder());
+
+		// Set up the order with required state
+		drugOrder.setAutoExpireDate(null);
+		drugOrder.setAction(Order.Action.NEW);
+
+		// Create a mock DosingInstructions that will throw an exception
+		DosingInstructions mockDosingInstructions = mock(DosingInstructions.class);
+		when(mockDosingInstructions.getAutoExpireDate(drugOrder))
+			.thenThrow(new IllegalArgumentException("Invalid dosing parameters"));
+
+		// Make the spy return the mock when getDosingInstructionsInstance is called
+		when(drugOrder.getDosingInstructionsInstance()).thenReturn(mockDosingInstructions);
+
+		try {
+			// Execute the method under test
+			drugOrder.setAutoExpireDateBasedOnDuration();
+
+			// If we reach here, the method didn't handle the exception, which is a test failure
+			// The method should handle exceptions from getAutoExpireDate
+			assertFalse(true, "Should have thrown exception from DosingInstructions");
+		} catch (IllegalArgumentException e) {
+			// Verify the exception message
+			assertEquals("Invalid dosing parameters", e.getMessage());
+
+			// Verify that autoExpireDate remains null
+			assertNull(drugOrder.getAutoExpireDate());
+
+			// Verify that getAutoExpireDate was called exactly once
+			verify(mockDosingInstructions, times(1)).getAutoExpireDate(drugOrder);
+		}
 	}
 }
