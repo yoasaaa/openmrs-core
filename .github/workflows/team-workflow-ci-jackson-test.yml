@@ -1,0 +1,41 @@
+name: Team Wide CI
+
+on:
+    #push:
+        #branches:
+            #- 'Jackson'
+    #pull_request:
+        #branches:
+            #- 'Jackson'
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest   
+        strategy:
+            matrix:
+                java-version: [8, 11, 17]
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up JDK
+              uses: actions/setup-java@v4
+              with:
+                  distribution: 'temurin'
+                  java-version: ${{ matrix.java-version }}
+                  cache: 'maven'
+
+            - name: Build with Maven (skip tests initially)
+              run: mvn -B clean package -DskipTests
+
+            - name: Run tests
+              run: mvn -B test
+
+            - name: Archive test results
+              if: ${{ always() }}
+              uses: actions/upload-artifact@v4
+              with:
+                  name: team-wide-test-results
+                  path: '**/target/surefire-reports/'
+                  retention-days: 5
