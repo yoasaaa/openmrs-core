@@ -200,10 +200,6 @@ public class PatientIdentifierTypeDefaultComparatorTest {
 		requiredNotRetiredANotId.setRetired(false);
 		requiredNotRetiredANotId.setName("A");
 
-//		PatientIdentifierType requiredNotRetiredNotName = new PatientIdentifierType();
-//		requiredNotRetiredNotName.setRequired(true);
-//		requiredNotRetiredNotName.setRetired(false);
-
 		List<PatientIdentifierType> list = Arrays.asList(requiredNotRetired2A, requiredNotRetired1a, requiredNotRetiredANotId);
 		list.sort(new PatientIdentifierTypeDefaultComparator());
 		assertEquals(Arrays.asList(requiredNotRetired1a, requiredNotRetired2A, requiredNotRetiredANotId), list);
